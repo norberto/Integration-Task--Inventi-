@@ -12,30 +12,32 @@ import java.util.Random;
  */
 public class PlaygroundRouteBuilder extends RouteBuilder {
 
-    public static final int X = 27;
+    public static final int X = 27; // should be less than Y
     public static final int Y = 77;
-    public static int temp;
-    public static class RandomGenerator {
-        public int out(){
-            Random random = new Random();
-            temp = random.nextInt(150);
-            return temp;
-        }
-    }
 
-    public static class Output {
-        public void lessThanX(){ System.out.println("Less than X: " + temp); }
-        public void lessThanY(){ System.out.println("Less than Y: " + temp); }
-        public void moreThanXY(){ System.out.println("Larger than X and Y: " + temp); }
-
-    }
     public void configure() throws Exception {
         from("timer://timer?period=2000")
+            .setBody(simple("150"))
             .beanRef("randomGenerator")
-                .choice()
-                .when(simple("${body} < " + X)).to("bean:output?method=lessThanX")
-                .when(simple("${body} < " + Y)).to("bean:output?method=lessThanY")
-                .otherwise().to("bean:output?method=moreThanXY");
+            .choice()
+                .when(simple("${body} < " + X))
+                    .to("direct:a")
+                .when(simple("${body} < " + Y))
+                    .to("direct:b")
+                .otherwise()
+                    .to("direct:c")
+            .endChoice()
+        ;
+
+        from("direct:a")
+            .to("bean:output?method=lessThanX")
+        ;
+        from("direct:b")
+            .to("bean:output?method=lessThanY")
+        ;
+        from("direct:c")
+            .to("bean:output?method=moreThanXY")
+        ;
     }
 }
 
