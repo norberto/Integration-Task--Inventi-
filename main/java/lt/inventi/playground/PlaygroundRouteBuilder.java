@@ -1,6 +1,5 @@
 package lt.inventi.playground;
 
-import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.*;
 
 /**
